@@ -1,4 +1,4 @@
-<img src="icon.png" alt="Flame Icon" width="72"/>
+<img src="icon.jpg" alt="Flame Icon" width="72"/>
 
 
 Flame
@@ -16,7 +16,7 @@ With Flame you can use the Firebase REST API on a local in-memory database. This
 
 ## Usage
 
-    const flame = require('flame')
+    const flame = require('@leonardvandriel/flame')
 
     // load database
     const json = '{ "user": { "abcd": { "name": "John", "age": 85 } } }'
