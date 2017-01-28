@@ -24,7 +24,7 @@ module.exports = new class {
                 throw new Error(`unknown query option ${key}=${query[key]}`)
             }
         }
-        let node = this.nodeAtPath(path)
+        const node = this.nodeAtPath(path)
         if (node === undefined || node === null) {
             return null
         }
@@ -60,34 +60,37 @@ module.exports = new class {
     }
 
     patch(path, value) {
-        let node = this.nodeAtPath(path, 0, true)
+        const node = this.nodeAtPath(path, 0, true)
         if (typeof node !== 'object') {
-            return this.put(path, value)
-        }
-        for (let key in value) {
-            const v = value[key]
-            this.setValueOnNode(node, key, v)
+            const n = this.nodeAtPath(path, 1, true)
+            const name = this.tailForPath(path, 1)[0]
+            this.setValueOnNode(n, name, value)
+        } else {
+            for (let key in value) {
+                const v = value[key]
+                this.setValueOnNode(node, key, v)
+            }
         }
         return value
     }
 
     put(path, value) {
-        let node = this.nodeAtPath(path, 1, true)
-        let name = this.tailForPath(path, 1)[0]
+        const node = this.nodeAtPath(path, 1, true)
+        const name = this.tailForPath(path, 1)[0]
         this.setValueOnNode(node, name, value)
         return value
     }
 
     post(path, value) {
-        let node = this.nodeAtPath(path, 0, true)
-        let name = this.generatePushID(Date.now())
+        const node = this.nodeAtPath(path, 0, true)
+        const name = this.generatePushID(Date.now())
         this.setValueOnNode(node, name, value)
         return { name }
     }
 
     delete(path) {
-        let node = this.nodeAtPath(path, 1, true)
-        let tail = this.tailForPath(path, 1)[0]
+        const node = this.nodeAtPath(path, 1, true)
+        const tail = this.tailForPath(path, 1)[0]
         this.setValueOnNode(node, tail, null)
         return null
     }
@@ -171,8 +174,8 @@ module.exports = new class {
     }
 
     reverseNode(node) {
-        let reversed = {}
-        let keys = Object.keys(node).reverse()
+        const reversed = {}
+        const keys = Object.keys(node).reverse()
         for (let i in keys) {
             const key = keys[i]
             reversed[key] = node[key]
@@ -194,7 +197,7 @@ module.exports = new class {
     }
 
     shallowFromNode(node) {
-        let shallow = Array.isArray(node) ? [] : {}
+        const shallow = Array.isArray(node) ? [] : {}
         for (let key in node) {
             shallow[key] = true
         }
@@ -204,14 +207,17 @@ module.exports = new class {
     // Querying
 
     queryNode(node, order, start, limit, reverse, equal) {
-        let keys = this.sortedKeys(node, order, reverse)
+        const keys = this.sortedKeys(node, order, reverse)
         let result = {}
         let j = 0
         for (let i in keys) {
             const key = keys[i]
-            const value = this.valueFor(node, order, key)
-            if ((start === undefined || start <= value) && (equal === undefined || value === equal)) {
-                this.setValueOnNode(result, key, node[key])
+            const sort = this.valueFor(node, order, key)
+            const value = node[key]
+            if ((start === undefined || start <= sort) &&
+                (equal === undefined || sort === equal) &&
+                (value !== null && value !== undefined)) {
+                result[key] = value
                 j += 1
             }
             if (limit !== undefined && j >= limit) {
