@@ -120,24 +120,35 @@ module.exports = new class {
 
     // Tree traversal
 
-    childForNode(node, keys, create) {
+    childForNode(node, keys, modify) {
         for (let i in keys) {
             const key = keys[i]
             let child = node[key]
             if (child === undefined || child === null) {
                 child = {}
-                if (create) {
-                    node[key] = child
-                }
+            }
+            if (modify) {
+                child = this.copyNode(child)
+                node[key] = child
             }
             node = child
         }
         return node
     }
 
-    nodeAtPath(path, offset, create) {
+    childAt(keys, modify) {
+        let node = this.database
+        if (modify) {
+            node = this.copyNode(node)
+            this.database = node
+        }
+        const child = this.childForNode(node, keys, modify)
+        return child
+    }
+
+    nodeAtPath(path, offset, modify) {
         const keys = this.headForPath(path, offset)
-        const child = this.childForNode(this.database, keys, create)
+        const child = this.childAt(keys, modify)
         return child
     }
 
@@ -150,6 +161,14 @@ module.exports = new class {
     }
 
     // Node manipulation
+
+    copyNode(node) {
+        const result = Array.isArray(node) ? [] : {}
+        for (let key in node) {
+            result[key] = node[key]
+        }
+        return result
+    }
 
     reverseNode(node) {
         let reversed = {}

@@ -2,9 +2,10 @@ const should = require('chai').should()
 const fs = require('fs')
 const flame = require('../index')
 const json = fs.readFileSync('test/database.json', 'utf8')
+const database = JSON.parse(json)
 
 beforeEach(() => {
-    flame.loadJSON(json)
+    flame.loadDatabase(database)
 })
 
 describe('#get', () => {
@@ -41,12 +42,24 @@ describe('#post', () => {
         const key = flame.post('/comment', { body: 'Matter is neither created nor destroyed.' }).name
         flame.database.comment[key].should.deep.equal({ body: 'Matter is neither created nor destroyed.' })
     })
+
+    it('does not affect the root data', () => {
+        const key = flame.post('/comment', { body: 'The second.' }).name
+        flame.database.comment[key].should.deep.equal({ body: 'The second.' })
+        should.not.exist(database.comment)
+    })
 })
 
 describe('#put', () => {
     it('replaces user', () => {
         flame.put('/user/abcd', { name: 'Nancy Oconnell' }).should.deep.equal({ name: 'Nancy Oconnell' })
         flame.database.user.abcd.should.deep.equal({ name: 'Nancy Oconnell' })
+    })
+
+    it('does not affect the root data', () => {
+        flame.put('/user/abcd', { name: 'Fred Johnson' })
+        flame.database.user.abcd.name.should.equal('Fred Johnson')
+        database.user.abcd.name.should.equal('Joshua Moreno')
     })
 })
 
@@ -55,11 +68,24 @@ describe('#patch', () => {
         flame.patch('/user/abcd', { name: 'Nancy Oconnell' }).should.deep.equal({ name: 'Nancy Oconnell' })
         flame.database.user.abcd.should.deep.equal({ name: 'Nancy Oconnell', age: 85 })
     })
+
+    it('does not affect the root data', () => {
+        flame.patch('/user/abcd', { name: 'Fred Johnson' })
+        flame.database.user.abcd.name.should.equal('Fred Johnson')
+        database.user.abcd.name.should.equal('Joshua Moreno')
+    })
 })
 
 describe('#delete', () => {
     it('deletes user', () => {
         should.not.exist(flame.delete('/user/efgh'))
         should.not.exist(flame.database.user.efgh)
+    })
+
+    it('does not affect the root data', () => {
+        should.exist(flame.database.user)
+        flame.delete('/user')
+        should.not.exist(flame.database.user)
+        should.exist(database.user)
     })
 })
