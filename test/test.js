@@ -6,6 +6,7 @@ const database = JSON.parse(json)
 
 beforeEach(() => {
     flame.loadDatabase(database)
+    // flame.useLogger(console.log)
 })
 
 describe('#get', () => {
@@ -87,5 +88,25 @@ describe('#delete', () => {
         flame.delete('/user')
         should.not.exist(flame.database.user)
         should.exist(database.user)
+    })
+})
+
+describe('logging', () => {
+    it('prints to console', () => {
+        // flame.useLogger(console.log)
+        flame.get('writing', { startAt: 'console.log' })
+    })
+
+    it('prints to logger', () => {
+        const did = { write: false }
+        flame.useLogger((operation, path, query) => {
+            operation.should.equal('get')
+            path.should.equal('writing')
+            query.should.deep.equal({ startAt: 'here' })
+            did.write = true
+        })
+        flame.get('writing', { startAt: 'here' })
+        did.write.should.equal(true)
+        flame.useLogger()
     })
 })

@@ -5,7 +5,7 @@ module.exports = new class {
         this.setupGeneratePushId()
     }
 
-    // Database loading
+    // Configuration
 
     loadJSON(json) {
         const node = JSON.parse(json)
@@ -16,9 +16,14 @@ module.exports = new class {
         this.database = node
     }
 
+    useLogger(logger) {
+        this.logger = logger
+    }
+
     // Operations
 
     get(path, query) {
+        this.log('get', path, query)
         for (let key in query) {
             if (['orderBy', 'startAt', 'limitToFirst', 'limitToLast', 'shallow', 'equalTo'].indexOf(key) < 0) {
                 throw new Error(`unknown query option ${key}=${query[key]}`)
@@ -56,10 +61,12 @@ module.exports = new class {
         if (query.shallow) {
             result = this.shallowFromNode(result)
         }
+        // this.log('keys', Object.keys(result))
         return result
     }
 
     patch(path, value) {
+        this.log('patch', path, value)
         const node = this.nodeAtPath(path, 0, true)
         if (typeof node !== 'object') {
             const n = this.nodeAtPath(path, 1, true)
@@ -75,6 +82,7 @@ module.exports = new class {
     }
 
     put(path, value) {
+        this.log('put', path, value)
         const node = this.nodeAtPath(path, 1, true)
         const name = this.tailForPath(path, 1)[0]
         this.setValueOnNode(node, name, value)
@@ -82,6 +90,7 @@ module.exports = new class {
     }
 
     post(path, value) {
+        this.log('post', path, value)
         const node = this.nodeAtPath(path, 0, true)
         const name = this.generatePushID(Date.now())
         this.setValueOnNode(node, name, value)
@@ -89,6 +98,7 @@ module.exports = new class {
     }
 
     delete(path) {
+        this.log('delete', path)
         const node = this.nodeAtPath(path, 1, true)
         const tail = this.tailForPath(path, 1)[0]
         this.setValueOnNode(node, tail, null)
@@ -156,6 +166,7 @@ module.exports = new class {
     }
 
     setValueOnNode(node, key, value) {
+        // this.log('set', key, value)
         if (value !== null && value !== undefined) {
             node[key] = value
         } else if (node[key] !== undefined) {
@@ -268,6 +279,14 @@ module.exports = new class {
 
     intForValue(value) {
         return value && typeof value === 'string' && value.match(/^[0-9]+$/) ? +value : value
+    }
+
+    // Logging
+
+    log() {
+        if (this.logger) {
+            this.logger.apply(this, arguments)
+        }
     }
 
     // Firebase key generation

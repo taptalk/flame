@@ -5,6 +5,7 @@ Change Log
 
 * Fix sorting on numeric keys
 * Add copy on modify node
+* Add logger
 
 ### 0.0.2 (2017-01-27)
 
