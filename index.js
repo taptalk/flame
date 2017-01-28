@@ -40,6 +40,9 @@ module.exports = new class {
             return null
         }
         query = query || { orderBy: '$key' }
+        if (query.shallow && !query.orderBy) {
+            query.orderBy = '$key'
+        }
         let start = query.startAt
         if (typeof start === 'string' && start.startsWith('"')) {
             start = start.substring(1, start.length - 1)

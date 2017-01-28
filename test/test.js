@@ -36,6 +36,10 @@ describe('#get', () => {
         flame.get('/item', { orderBy: '$value', limitToLast: 3 }).should.deep.equal({ '0': 'zeroth', '2': 'second', '10': 'tenth' })
         flame.get('/item', { orderBy: '$value', limitToLast: 3, startAt: 's' }).should.deep.equal({ '0': 'zeroth', '2': 'second', '10': 'tenth' })
     })
+
+    it('fetches shallow users', () => {
+        Object.keys(flame.get('/user', { shallow: true })).should.deep.equal(['abcd', 'efgh'])
+    })
 })
 
 describe('#post', () => {
