@@ -92,22 +92,7 @@ module.exports = new class {
         return null
     }
 
-    // Helpers
-
-    childForNode(node, keys, create) {
-        for (let i in keys) {
-            const key = keys[i]
-            let child = node[key]
-            if (child === undefined || child === null) {
-                child = {}
-                if (create) {
-                    node[key] = child
-                }
-            }
-            node = child
-        }
-        return node
-    }
+    // Path parsing
 
     keysForPath(path) {
         let keys = path.split('/')
@@ -133,6 +118,23 @@ module.exports = new class {
         return keys
     }
 
+    // Tree traversal
+
+    childForNode(node, keys, create) {
+        for (let i in keys) {
+            const key = keys[i]
+            let child = node[key]
+            if (child === undefined || child === null) {
+                child = {}
+                if (create) {
+                    node[key] = child
+                }
+            }
+            node = child
+        }
+        return node
+    }
+
     nodeAtPath(path, offset, create) {
         const keys = this.headForPath(path, offset)
         const child = this.childForNode(this.database, keys, create)
@@ -146,6 +148,8 @@ module.exports = new class {
             delete node[key]
         }
     }
+
+    // Node manipulation
 
     reverseNode(node) {
         let reversed = {}
@@ -172,57 +176,13 @@ module.exports = new class {
 
     shallowFromNode(node) {
         let shallow = Array.isArray(node) ? [] : {}
-        let keys = this.keysInNode(node)
         for (let key in node) {
             shallow[key] = true
         }
         return shallow
     }
 
-    compareValues(a, b, reverse) {
-        if (a < b) {
-            return reverse ? 1 : -1
-        }
-        if (a > b) {
-            return reverse ? -1 : 1
-        }
-        return 0
-    }
-
-    intForValue(value) {
-        return value && typeof value === 'string' && value.match(/^[0-9]+$/) ? +value : value
-    }
-
-    keysInNode(node) {
-        if (Array.isArray(node)) {
-            return Array.from(Array(node.length).keys())
-        }
-        return Object.keys(node)
-    }
-
-    sortedKeys(node, order, reverse) {
-        if (!order) {
-            throw new Error('expecting orderBy in query')
-        }
-        if (order === '$key') {
-            return this.keysInNode(node).map(value => this.intForValue(value))
-                .sort((a, b) => this.compareValues(a, b, reverse))
-        }
-        if (order === '$value') {
-            return this.keysInNode(node).sort((a, b) => this.compareValues(node[a] || '', node[b] || '', reverse))
-        }
-        return this.keysInNode(node).sort((a, b) => this.compareValues((node[a] || {})[order] || '', (node[b] || {})[order] || '', reverse))
-    }
-
-    valueFor(node, order, key) {
-        if (order === '$key') {
-            return key
-        }
-        if (order === '$value') {
-            return node[key]
-        }
-        return node[key][order]
-    }
+    // Querying
 
     queryNode(node, order, start, limit, reverse, equal) {
         let keys = this.sortedKeys(node, order, reverse)
@@ -243,6 +203,46 @@ module.exports = new class {
             result = this.reverseNode(result)
         }
         return result
+    }
+
+    sortedKeys(node, order, reverse) {
+        if (!order) {
+            throw new Error('expecting orderBy in query')
+        }
+        if (order === '$key') {
+            return Object.keys(node).map(value => this.intForValue(value))
+                .sort((a, b) => this.compareValues(a, b, reverse))
+        }
+        if (order === '$value') {
+            return Object.keys(node).sort((a, b) => this.compareValues(node[a] || '', node[b] || '', reverse))
+        }
+        return Object.keys(node).sort((a, b) => this.compareValues((node[a] || {})[order] || '', (node[b] || {})[order] || '', reverse))
+    }
+
+    valueFor(node, order, key) {
+        if (order === '$key') {
+            return key
+        }
+        if (order === '$value') {
+            return node[key]
+        }
+        return node[key][order]
+    }
+
+    // Ordering
+
+    compareValues(a, b, reverse) {
+        if (a < b) {
+            return reverse ? 1 : -1
+        }
+        if (a > b) {
+            return reverse ? -1 : 1
+        }
+        return 0
+    }
+
+    intForValue(value) {
+        return value && typeof value === 'string' && value.match(/^[0-9]+$/) ? +value : value
     }
 
     // Firebase key generation
