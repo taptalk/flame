@@ -40,20 +40,24 @@ module.exports = new class {
             return null
         }
         query = query || { orderBy: '$key' }
-        let order = query.orderBy
         let start = query.startAt
         if (typeof start === 'string' && start.startsWith('"')) {
             start = start.substring(1, start.length - 1)
         }
+        let order = query.orderBy
         if (typeof order === 'string' && order.startsWith('"')) {
             order = order.substring(1, order.length - 1)
         }
         if (order === '$key') {
             start = this.intForValue(start)
         }
+        let equal = query.equalTo
+        if (typeof equal === 'string' && equal.startsWith('"')) {
+            equal = equal.substring(1, equal.length - 1)
+        }
         const reverse = query.limitToLast !== undefined
         const limit = reverse ? query.limitToLast : query.limitToFirst
-        let result = this.queryNode(node, order, start, limit, reverse, query.equalTo)
+        let result = this.queryNode(node, order, start, limit, reverse, equal)
         const array = this.arrayFromNode(result)
         if (array) {
             result = array
