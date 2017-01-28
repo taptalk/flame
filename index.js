@@ -173,7 +173,7 @@ module.exports = new class {
     }
 
     setValueOnNode(node, key, value) {
-        // this.log('set', key, value)
+        this.log('set', key, node[key], value)
         if (value !== null && value !== undefined) {
             node[key] = value
         } else if (node[key] !== undefined) {
