@@ -17,8 +17,22 @@ describe('#get', () => {
     })
 
     it('fetches limited users', () => {
-        Object.keys(flame.get('/user', { limitToLast: 1 })).should.deep.equal(['efgh'])
+        Object.keys(flame.get('/user', { orderBy: '$key', limitToLast: 1 })).should.deep.equal(['efgh'])
         Object.keys(flame.get('/user', { orderBy: 'age', limitToLast: 1, startAt: 10 })).should.deep.equal(['abcd'])
+    })
+
+    it('sorts items by key', () => {
+        flame.get('/item', { orderBy: '$key', limitToFirst: 3 }).should.deep.equal(['zeroth', 'first', 'second'])
+        flame.get('/item', { orderBy: '$key', limitToFirst: 3, startAt: 1 }).should.deep.equal({ '1': 'first', '2': 'second', '10': 'tenth' })
+        flame.get('/item', { orderBy: '$key', limitToLast: 3 }).should.deep.equal({ '1': 'first', '2': 'second', '10': 'tenth' })
+        flame.get('/item', { orderBy: '$key', limitToLast: 3, startAt: 2 }).should.deep.equal({ '2': 'second', '10': 'tenth' })
+    })
+
+    it('sorts items by value', () => {
+        flame.get('/item', { orderBy: '$value', limitToFirst: 3 }).should.deep.equal({ '1': 'first', '2': 'second', '10': 'tenth' })
+        flame.get('/item', { orderBy: '$value', limitToFirst: 3, startAt: 's' }).should.deep.equal({ '0': 'zeroth', '2': 'second', '10': 'tenth' })
+        flame.get('/item', { orderBy: '$value', limitToLast: 3 }).should.deep.equal({ '0': 'zeroth', '2': 'second', '10': 'tenth' })
+        flame.get('/item', { orderBy: '$value', limitToLast: 3, startAt: 's' }).should.deep.equal({ '0': 'zeroth', '2': 'second', '10': 'tenth' })
     })
 })
 

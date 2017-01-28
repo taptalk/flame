@@ -31,17 +31,20 @@ module.exports = new class {
         if (typeof node !== 'object') {
             return node
         }
-        if (Object.keys(node).length == 0) {
+        if (Object.keys(node).length === 0) {
             return null
         }
-        query = query || {}
+        query = query || { orderBy: '$key' }
         let order = query.orderBy
         let start = query.startAt
         if (typeof start === 'string' && start.startsWith('"')) {
             start = start.substring(1, start.length - 1)
         }
-        if (typeof start === 'string' && Array.isArray(node)) {
-            start = parseInt(start)
+        if (typeof order === 'string' && order.startsWith('"')) {
+            order = order.substring(1, order.length - 1)
+        }
+        if (order === '$key') {
+            start = this.intForValue(start)
         }
         const reverse = query.limitToLast !== undefined
         const limit = reverse ? query.limitToLast : query.limitToFirst
@@ -186,6 +189,10 @@ module.exports = new class {
         return 0
     }
 
+    intForValue(value) {
+        return value && typeof value === 'string' && value.match(/^[0-9]+$/) ? +value : value
+    }
+
     keysInNode(node) {
         if (Array.isArray(node)) {
             return Array.from(Array(node.length).keys())
@@ -194,20 +201,24 @@ module.exports = new class {
     }
 
     sortedKeys(node, order, reverse) {
-        if (order === undefined || order === '"$key"') {
-            return this.keysInNode(node).sort((a, b) => this.compareValues(a, b, reverse))
+        if (!order) {
+            throw new Error('expecting orderBy in query')
         }
-        if (order === '"$value"') {
+        if (order === '$key') {
+            return this.keysInNode(node).map(value => this.intForValue(value))
+                .sort((a, b) => this.compareValues(a, b, reverse))
+        }
+        if (order === '$value') {
             return this.keysInNode(node).sort((a, b) => this.compareValues(node[a] || '', node[b] || '', reverse))
         }
         return this.keysInNode(node).sort((a, b) => this.compareValues((node[a] || {})[order] || '', (node[b] || {})[order] || '', reverse))
     }
 
     valueFor(node, order, key) {
-        if (order === undefined || order === '"$key"') {
+        if (order === '$key') {
             return key
         }
-        if (order === '"$value"') {
+        if (order === '$value') {
             return node[key]
         }
         return node[key][order]
@@ -220,7 +231,7 @@ module.exports = new class {
         for (let i in keys) {
             const key = keys[i]
             const value = this.valueFor(node, order, key)
-            if ((start === undefined || value >= start) && (equal == undefined || value === equal)) {
+            if ((start === undefined || start <= value) && (equal === undefined || value === equal)) {
                 this.setValueOnNode(result, key, node[key])
                 j += 1
             }
