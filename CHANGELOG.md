@@ -3,6 +3,8 @@ Change Log
 
 ### master (unreleased)
 
+### 0.0.3 (2017-01-28)
+
 * Fix sorting on numeric keys
 * Add copy on modify node
 * Add logger
