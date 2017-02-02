@@ -18,6 +18,11 @@ describe('#get', () => {
         Object.keys(flame.get('/user')).should.deep.equal(['abcd', 'efgh'])
     })
 
+    it('fetches root', () => {
+        Object.keys(flame.get('')).should.deep.equal(['item', 'user'])
+        Object.keys(flame.get('/')).should.deep.equal(['item', 'user'])
+    })
+
     it('fetches limited users', () => {
         Object.keys(flame.get('/user', { orderBy: '$key', limitToLast: 1 })).should.deep.equal(['efgh'])
         Object.keys(flame.get('/user', { orderBy: 'age', limitToLast: 1, startAt: 10 })).should.deep.equal(['abcd'])

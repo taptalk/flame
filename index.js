@@ -115,6 +115,9 @@ module.exports = new class {
     // Path parsing
 
     keysForPath(path) {
+        if (path.endsWith('/')) {
+            path = path.substring(0, path.length - 1)
+        }
         let keys = path.split('/')
         if (keys.length > 0 && keys[0] === '') {
             keys = keys.splice(1)
