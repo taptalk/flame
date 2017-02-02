@@ -2,7 +2,7 @@
 
 module.exports = new class {
     constructor() {
-        this.setupGeneratePushId()
+        this.setupGenerateKey()
     }
 
     // Configuration
@@ -99,7 +99,7 @@ module.exports = new class {
     post(path, value) {
         this.log('post', path, value)
         const node = this.nodeAtPath(path, 0, true)
-        const name = this.generatePushID(Date.now())
+        const name = this.generateKey(Date.now())
         this.setValueOnNode(node, name, value)
         return { name }
     }
@@ -302,7 +302,7 @@ module.exports = new class {
     // Firebase key generation
 
     // https://gist.github.com/mikelehen/3596a30bd69384624c11
-    setupGeneratePushId() {
+    setupGenerateKey() {
         /**
          * Fancy ID generator that creates 20-character string identifiers with the following properties:
          *
@@ -313,7 +313,7 @@ module.exports = new class {
          *    latter ones will sort after the former ones.  We do this by using the previous random bits
          *    but "incrementing" them by 1 (only in the case of a timestamp collision).
          */
-        this.generatePushID = (function() {
+        this.generateKey = (function() {
           // Modeled after base64 web-safe chars, but ordered by ASCII.
           let PUSH_CHARS = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
 

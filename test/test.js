@@ -100,6 +100,17 @@ describe('#delete', () => {
     })
 })
 
+describe('#generateKey', () => {
+    it('generates with fixed prefix', () => {
+        flame.generateKey(0).should.match(/^--------[A-Za-z0-9_-]{12}$/)
+        flame.generateKey(1).should.match(/^-------0[A-Za-z0-9_-]{12}$/)
+        flame.generateKey(1000).should.match(/^------Ec[A-Za-z0-9_-]{12}$/)
+        flame.generateKey(1000000).should.match(/^----2o8-[A-Za-z0-9_-]{12}$/)
+        flame.generateKey(1486072494923).should.match(/^-Kc-ofhA[A-Za-z0-9_-]{12}$/)
+        flame.generateKey(281474976710655).should.match(/^zzzzzzzz[A-Za-z0-9_-]{12}$/)
+    })
+})
+
 describe('logging', () => {
     it('prints to console', () => {
         // flame.useLogger(console.log)
