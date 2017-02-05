@@ -1,7 +1,9 @@
 Change Log
 ==========
 
-### master (unreleased)
+### master (untagged)
+
+* Add reverse key gen
 
 ### 0.0.3 (2017-01-28)
 

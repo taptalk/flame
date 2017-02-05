@@ -111,6 +111,18 @@ describe('#generateKey', () => {
     })
 })
 
+describe('#timestampForKey', () => {
+    it('reverses date from generated key', () => {
+        flame.timestampForKey('--------trHTBlfcaOg3').should.equal(0)
+        flame.timestampForKey('-------0W_AvbIPV-hTf').should.equal(1)
+        flame.timestampForKey('------Echeo0gL_kxHCr').should.equal(1000)
+        flame.timestampForKey('----2o8-tNE2SRVeWADl').should.equal(1000000)
+        flame.timestampForKey('---48_k-S4pTebdGH_IB').should.equal(86400000)
+        flame.timestampForKey('-Kc-ofhA2uGpymUI1CLf').should.equal(1486072494923)
+        flame.timestampForKey('zzzzzzzz9vmDck6jy-qC').should.equal(281474976710655)
+    })
+})
+
 describe('logging', () => {
     it('prints to console', () => {
         // flame.useLogger(console.log)

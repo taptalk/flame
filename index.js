@@ -301,8 +301,20 @@ module.exports = new class {
 
     // Firebase key generation
 
+    timestampForKey(key) {
+        let timestamp = 0
+        for (let i = 0; i < 8; i++) {
+            const c = this.keyGenReverseLookup.charCodeAt(key.charCodeAt(i) - 45) - 45
+            if (c < 0 || c >= 64) throw new Error('key character out of range')
+            timestamp = timestamp * 64 + c
+        }
+        return timestamp
+    }
+
     // https://gist.github.com/mikelehen/3596a30bd69384624c11
     setupGenerateKey() {
+        this.keyGenReverseLookup = '-mm./01234567mmmmmmm89:;<=>?@ABCDEFGHIJKLMNOPQmmmmRmSTUVWXYZ[\\]^_`abcdefghijkl'
+
         /**
          * Fancy ID generator that creates 20-character string identifiers with the following properties:
          *
