@@ -2,7 +2,7 @@
   "name": "@leonardvandriel/flame",
   "version": "0.0.3",
   "description": "A Firebase REST API on a local in-memory database.",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "mocha --reporter spec"
   },
@@ -19,10 +19,7 @@
   "author": "Leo Vandriel",
   "license": "BSD-3-Clause",
   "files": [
-    "LICENSE",
-    "README.md",
-    "CHANGELOG.md",
-    "index.js"
+    "lib"
   ],
   "bugs": {
     "url": "https://github.com/taptalk/flame/issues"
@@ -33,6 +30,7 @@
     "mocha": "^3.2.0"
   },
   "directories": {
+    "lib": "lib",
     "test": "test"
   }
 }
