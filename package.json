@@ -1,6 +1,6 @@
 {
   "name": "@leonardvandriel/flame",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A Firebase REST API on a local in-memory database.",
   "main": "lib/index.js",
   "scripts": {

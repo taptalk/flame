@@ -3,6 +3,8 @@ Change Log
 
 ### master (untagged)
 
+### 0.0.4 (2017-07-10)
+
 * Add reverse key gen
 * Add order by sub keys
 
