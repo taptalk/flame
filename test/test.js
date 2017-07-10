@@ -1,6 +1,6 @@
 const should = require('chai').should()
 const fs = require('fs')
-const flame = require('../index')
+const flame = require('../lib/index')
 const json = fs.readFileSync('test/database.json', 'utf8')
 const database = JSON.parse(json)
 
@@ -11,7 +11,7 @@ beforeEach(() => {
 
 describe('#get', () => {
     it('fetches user', () => {
-        flame.get('/user/abcd').should.deep.equal({ name: 'Joshua Moreno', age: 85 })
+        flame.get('/user/abcd').name.should.equal('Joshua Moreno')
     })
 
     it('fetches users', () => {
@@ -45,6 +45,11 @@ describe('#get', () => {
     it('fetches shallow users', () => {
         Object.keys(flame.get('/user', { shallow: true })).should.deep.equal(['abcd', 'efgh'])
     })
+
+    it('fetch by sub key', () => {
+        Object.keys(flame.get('/user', { orderBy: 'stats/visits', limitToLast: 1, startAt: 0 })).should.deep.equal(['abcd'])
+        Object.keys(flame.get('/user', { orderBy: 'stats/type', equalTo: 'c' })).should.deep.equal(['abcd'])
+    })
 })
 
 describe('#post', () => {
@@ -71,12 +76,17 @@ describe('#put', () => {
         flame.database.user.abcd.name.should.equal('Fred Johnson')
         database.user.abcd.name.should.equal('Joshua Moreno')
     })
+
+    it('works without slash prefix', () => {
+        flame.put('test', { value: 'xyz' }).should.deep.equal({ value: 'xyz' })
+        flame.database.test.should.deep.equal({ value: 'xyz' })
+    })
 })
 
 describe('#patch', () => {
     it('updates user', () => {
         flame.patch('/user/abcd', { name: 'Nancy Oconnell' }).should.deep.equal({ name: 'Nancy Oconnell' })
-        flame.database.user.abcd.should.deep.equal({ name: 'Nancy Oconnell', age: 85 })
+        flame.database.user.abcd.name.should.equal('Nancy Oconnell')
     })
 
     it('does not affect the root data', () => {
